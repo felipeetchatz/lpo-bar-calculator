@@ -95,11 +95,83 @@
 
       .plate-row {
         display: grid;
-        grid-template-columns: 1fr auto;
+        grid-template-columns: auto 1fr auto;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.65rem 0.75rem;
         padding: 0.5rem 0;
         border-bottom: 1px solid var(--border);
+      }
+
+      /* Miniatura estilo bumper (ilustração — não escala real entre pesos) */
+      .plate-thumb {
+        width: 2.7rem;
+        height: 2.7rem;
+        border-radius: 50%;
+        flex-shrink: 0;
+        position: relative;
+        box-shadow:
+          inset 0 2px 10px rgba(255, 255, 255, 0.18),
+          inset 0 -5px 14px rgba(0, 0, 0, 0.38),
+          0 2px 10px rgba(0, 0, 0, 0.5);
+        border: 2px solid rgba(0, 0, 0, 0.42);
+      }
+
+      .plate-thumb::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 34%;
+        height: 34%;
+        border-radius: 50%;
+        background: radial-gradient(circle at 32% 28%, #4a4a4a, #141414 65%, #0a0a0a);
+        box-shadow:
+          inset 0 1px 2px rgba(255, 255, 255, 0.06),
+          0 1px 4px rgba(0, 0, 0, 0.75);
+      }
+
+      .plate-thumb--55 {
+        background: radial-gradient(circle at 32% 26%, #ff7a7a, #c62828 48%, #6d1010);
+      }
+
+      .plate-thumb--45 {
+        background: radial-gradient(circle at 32% 26%, #6eb6ff, #1565c0 48%, #0a3a7a);
+      }
+
+      .plate-thumb--35 {
+        background: radial-gradient(circle at 32% 26%, #ffe082, #f9a825 45%, #b06d00);
+      }
+
+      .plate-thumb--25 {
+        background: radial-gradient(circle at 32% 26%, #9ccc9c, #2e7d32 48%, #145214);
+      }
+
+      /* 10 lb: branca ou preta — metade de cada */
+      .plate-thumb--10 {
+        background: linear-gradient(90deg, #eceff1 50%, #263238 50%);
+        border-color: rgba(0, 0, 0, 0.55);
+      }
+
+      /* Anilhas pretas (ferro / borracha preta) */
+      .plate-thumb--black {
+        background: radial-gradient(circle at 32% 26%, #5c6068, #25282e 48%, #0c0d10);
+        border-color: rgba(0, 0, 0, 0.7);
+        box-shadow:
+          inset 0 2px 8px rgba(255, 255, 255, 0.08),
+          inset 0 -5px 14px rgba(0, 0, 0, 0.55),
+          0 2px 10px rgba(0, 0, 0, 0.55);
+      }
+
+      .plate-thumb--black.plate-thumb--small {
+        width: 2.2rem;
+        height: 2.2rem;
+        border-width: 1.5px;
+      }
+
+      .plate-thumb--black.plate-thumb--small::after {
+        width: 32%;
+        height: 32%;
       }
 
       .plate-row:last-child {
@@ -114,6 +186,12 @@
 
       .plate-kg {
         font-weight: 600;
+      }
+
+      .plate-lb {
+        font-weight: 500;
+        color: var(--muted);
+        font-size: 0.88em;
       }
 
       .plate-color {
@@ -229,19 +307,22 @@
   <body>
     <main>
       <h1>Calculadora de carga</h1>
-      <p class="subtitle">Barra olímpica (LPO) — informe as anilhas de <strong>um lado</strong>; o outro é igual.</p>
+      <p class="subtitle">
+        Bumpers <strong>coloridos</strong> (lb nominal + kg exato) e anilhas <strong>pretas</strong> em kg (lb por
+        conversão). Informe as anilhas de <strong>um lado</strong>; o outro é igual.
+      </p>
 
       <form id="calc-form" autocomplete="off">
         <fieldset>
           <legend>Barra</legend>
           <div class="bar-options" role="radiogroup" aria-label="Tipo de barra">
             <label>
-              <input type="radio" name="bar" value="20" checked />
-              Masculina — 20 kg
+              <input type="radio" name="bar" value="20.412" data-lb="45" checked />
+              Masculina — 45 lb <span class="plate-lb">(20,412 kg)</span>
             </label>
             <label>
-              <input type="radio" name="bar" value="15" />
-              Feminina — 15 kg
+              <input type="radio" name="bar" value="15.876" data-lb="35" />
+              Feminina — 35 lb <span class="plate-lb">(15,876 kg)</span>
             </label>
           </div>
         </fieldset>
@@ -254,7 +335,7 @@
 
         <div class="total-card">
           <div class="total-label">Carga total</div>
-          <p class="total-value" id="total-display">0 kg</p>
+          <p class="total-value" id="total-display">45 lb (20,412 kg)</p>
           <p class="total-detail" id="total-detail">Barra + 2 × (soma de um lado)</p>
         </div>
 
@@ -268,16 +349,26 @@
       (function () {
         "use strict";
 
-        /** Competition-style plate weights (kg) and Portuguese color hints. */
+        var KG_TO_LB = 2.2046226218;
+
+        /**
+         * Ordem: do mais pesado ao mais leve (como na sua lista).
+         * Coloridas: lb + kg iguais às que já estavam no app. Pretas: só kg; lb na interface = conversão.
+         */
         var PLATES = [
-          { kg: 25, color: "Vermelha" },
-          { kg: 20, color: "Azul" },
-          { kg: 15, color: "Amarela" },
-          { kg: 10, color: "Verde" },
-          { kg: 5, color: "Branca" },
-          { kg: 2.5, color: "Vermelha (pequena)" },
-          { kg: 1.25, color: "Azul (pequena)" },
-          { kg: 0.5, color: "Branca (pequena)" },
+          { id: "kg25", kg: 25, lb: null, color: "Preta", thumbCss: "plate-thumb--black" },
+          { id: "lb55", kg: 24.947, lb: 55, color: "Vermelha", thumbCss: "plate-thumb--55" },
+          { id: "lb45", kg: 20.412, lb: 45, color: "Azul", thumbCss: "plate-thumb--45" },
+          { id: "kg20", kg: 20, lb: null, color: "Preta", thumbCss: "plate-thumb--black" },
+          { id: "lb35", kg: 15.876, lb: 35, color: "Amarela", thumbCss: "plate-thumb--35" },
+          { id: "kg15", kg: 15, lb: null, color: "Preta", thumbCss: "plate-thumb--black" },
+          { id: "lb25", kg: 11.34, lb: 25, color: "Verde", thumbCss: "plate-thumb--25" },
+          { id: "kg5", kg: 5, lb: null, color: "Preta", thumbCss: "plate-thumb--black" },
+          { id: "lb10", kg: 4.536, lb: 10, color: "Branca ou preta", thumbCss: "plate-thumb--10" },
+          { id: "kg2_5", kg: 2.5, lb: null, color: "Preta", thumbCss: "plate-thumb--black plate-thumb--small" },
+          { id: "kg2_2", kg: 2.2, lb: null, color: "Preta", thumbCss: "plate-thumb--black plate-thumb--small" },
+          { id: "kg1_25", kg: 1.25, lb: null, color: "Preta", thumbCss: "plate-thumb--black plate-thumb--small" },
+          { id: "kg1", kg: 1, lb: null, color: "Preta", thumbCss: "plate-thumb--black plate-thumb--small" },
         ];
 
         var container = document.getElementById("plates-container");
@@ -286,18 +377,58 @@
         var form = document.getElementById("calc-form");
         var btnReset = document.getElementById("btn-reset");
 
-        function formatKg(n) {
-          if (n % 1 === 0) {
-            return String(n);
+        function formatKgExact(n) {
+          var s = n.toFixed(3);
+          s = s.replace(/\.?0+$/, "");
+          s = s.replace(/\./g, ",");
+          return s;
+        }
+
+        function formatLbFromKg(kg) {
+          var lb = kg * KG_TO_LB;
+          var r = Math.round(lb);
+          if (Math.abs(lb - r) < 0.06) {
+            return String(r);
           }
-          return n.toFixed(2).replace(/\.?0+$/, "");
+          return lb.toFixed(1).replace(/\.0$/, "");
+        }
+
+        function formatLbTotal(lb) {
+          if (Math.abs(lb - Math.round(lb)) < 0.05) {
+            return String(Math.round(lb));
+          }
+          var x = Math.round(lb * 10) / 10;
+          return String(x.toFixed(1)).replace(/\.0$/, "");
+        }
+
+        function lbKgLabel(lb, kg) {
+          return formatLbTotal(lb) + " lb (" + formatKgExact(kg) + " kg)";
+        }
+
+        function plateLineLabel(p) {
+          if (p.lb != null) {
+            return String(p.lb) + " lb (" + p.kg.toFixed(3).replace(/\./g, ",") + " kg)";
+          }
+          return formatKgExact(p.kg) + " kg (" + formatLbFromKg(p.kg) + " lb)";
+        }
+
+        function plateThumbTitle(p) {
+          if (p.lb != null) {
+            return String(p.lb) + " lb — " + p.color;
+          }
+          return formatKgExact(p.kg) + " kg — " + p.color;
         }
 
         function buildPlateRows() {
           PLATES.forEach(function (p) {
-            var id = "plate-" + String(p.kg).replace(".", "_");
+            var id = "plate-" + p.id;
             var row = document.createElement("div");
             row.className = "plate-row";
+
+            var thumb = document.createElement("div");
+            thumb.className = "plate-thumb " + p.thumbCss;
+            thumb.setAttribute("aria-hidden", "true");
+            thumb.title = plateThumbTitle(p);
 
             var labelWrap = document.createElement("div");
             labelWrap.className = "plate-label";
@@ -305,7 +436,7 @@
             label.setAttribute("for", id);
             var kgSpan = document.createElement("span");
             kgSpan.className = "plate-kg";
-            kgSpan.textContent = formatKg(p.kg) + " kg";
+            kgSpan.textContent = plateLineLabel(p);
             var colorSpan = document.createElement("span");
             colorSpan.className = "plate-color";
             colorSpan.textContent = p.color;
@@ -318,7 +449,7 @@
 
             var minus = document.createElement("button");
             minus.type = "button";
-            minus.setAttribute("aria-label", "Diminuir " + formatKg(p.kg) + " kg");
+            minus.setAttribute("aria-label", "Diminuir " + plateLineLabel(p));
             minus.textContent = "−";
 
             var input = document.createElement("input");
@@ -329,11 +460,11 @@
             input.step = "1";
             input.value = "0";
             input.setAttribute("inputmode", "numeric");
-            input.setAttribute("aria-label", "Quantidade " + formatKg(p.kg) + " kg");
+            input.setAttribute("aria-label", "Quantidade " + plateLineLabel(p));
 
             var plus = document.createElement("button");
             plus.type = "button";
-            plus.setAttribute("aria-label", "Aumentar " + formatKg(p.kg) + " kg");
+            plus.setAttribute("aria-label", "Aumentar " + plateLineLabel(p));
             plus.textContent = "+";
 
             minus.addEventListener("click", function () {
@@ -351,28 +482,41 @@
             qtyWrap.appendChild(input);
             qtyWrap.appendChild(plus);
 
+            row.appendChild(thumb);
             row.appendChild(labelWrap);
             row.appendChild(qtyWrap);
             container.appendChild(row);
           });
         }
 
-        function getBarWeight() {
+        function getBarWeightKg() {
           var checked = form.querySelector('input[name="bar"]:checked');
-          return checked ? parseFloat(checked.value) : 20;
+          return checked ? parseFloat(checked.value) : 20.412;
         }
 
-        function getSideTotal() {
+        function getBarWeightLb() {
+          var checked = form.querySelector('input[name="bar"]:checked');
+          if (!checked) {
+            return 45;
+          }
+          var lb = checked.getAttribute("data-lb");
+          return lb ? parseInt(lb, 10) : 45;
+        }
+
+        function getSideTotals() {
           var inputs = container.querySelectorAll('input[type="number"]');
-          var sum = 0;
+          var sumKg = 0;
+          var sumLb = 0;
           inputs.forEach(function (inp, i) {
             var qty = parseInt(inp.value, 10);
             if (isNaN(qty) || qty < 0) {
               qty = 0;
             }
-            sum += PLATES[i].kg * qty;
+            var plate = PLATES[i];
+            sumKg += plate.kg * qty;
+            sumLb += (plate.lb != null ? plate.lb : plate.kg * KG_TO_LB) * qty;
           });
-          return sum;
+          return { kg: sumKg, lb: sumLb };
         }
 
         function clampInputs() {
@@ -387,18 +531,20 @@
 
         function updateTotal() {
           clampInputs();
-          var bar = getBarWeight();
-          var side = getSideTotal();
-          var total = bar + 2 * side;
-          totalDisplay.textContent = formatKg(total) + " kg";
+          var barKg = getBarWeightKg();
+          var barLb = getBarWeightLb();
+          var side = getSideTotals();
+          var totalKg = barKg + 2 * side.kg;
+          var totalLb = barLb + 2 * side.lb;
+          totalDisplay.textContent =
+            formatLbTotal(totalLb) + " lb (" + formatKgExact(totalKg) + " kg)";
           totalDetail.textContent =
             "Barra " +
-            formatKg(bar) +
-            " kg + 2 × " +
-            formatKg(side) +
-            " kg (um lado) = " +
-            formatKg(total) +
-            " kg";
+            lbKgLabel(barLb, barKg) +
+            " + 2 × " +
+            lbKgLabel(side.lb, side.kg) +
+            " (um lado) = " +
+            lbKgLabel(totalLb, totalKg);
         }
 
         buildPlateRows();
