@@ -326,12 +326,12 @@
           <legend>Barra</legend>
           <div class="bar-options" role="radiogroup" aria-label="Tipo de barra">
             <label>
-              <input type="radio" name="bar" value="20.412" data-lb="45" checked />
-              Masculina — 20,412 kg <span class="plate-lb">(45 lb)</span>
+              <input type="radio" name="bar" value="20" checked />
+              Masculina — 20 kg <span class="plate-lb">(44.1 lb)</span>
             </label>
             <label>
-              <input type="radio" name="bar" value="15.876" data-lb="35" />
-              Feminina — 15,876 kg <span class="plate-lb">(35 lb)</span>
+              <input type="radio" name="bar" value="15" />
+              Feminina — 15 kg <span class="plate-lb">(33.1 lb)</span>
             </label>
           </div>
         </fieldset>
@@ -344,7 +344,7 @@
 
         <div class="total-card">
           <div class="total-label">Soma final</div>
-          <p class="total-value" id="total-display">20,412 kg (45 lb)</p>
+          <p class="total-value" id="total-display">20 kg (44.1 lb)</p>
           <p class="total-detail" id="total-detail">Barra + 2 × (soma de um lado)</p>
         </div>
 
@@ -497,16 +497,11 @@
 
         function getBarWeightKg() {
           var checked = form.querySelector('input[name="bar"]:checked');
-          return checked ? parseFloat(checked.value) : 20.412;
+          return checked ? parseFloat(checked.value) : 20;
         }
 
         function getBarWeightLb() {
-          var checked = form.querySelector('input[name="bar"]:checked');
-          if (!checked) {
-            return 45;
-          }
-          var lb = checked.getAttribute("data-lb");
-          return lb ? parseInt(lb, 10) : 45;
+          return getBarWeightKg() * KG_TO_LB;
         }
 
         function getSideTotals() {
