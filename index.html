@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calculadora de carga — barra LPO</title>
+    <style>
+      :root {
+        --bg: #0f1419;
+        --surface: #1a222c;
+        --text: #e8eaed;
+        --muted: #9aa0a6;
+        --accent: #3d9cfd;
+        --accent-dim: #2a6cb0;
+        --border: #2d3844;
+        --focus: #7eb6ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        padding: 1rem 1.25rem 2rem;
+      }
+
+      main {
+        max-width: 28rem;
+        margin: 0 auto;
+      }
+
+      h1 {
+        font-size: 1.35rem;
+        font-weight: 700;
+        margin: 0 0 0.35rem;
+        letter-spacing: -0.02em;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin: 0 0 1.5rem;
+      }
+
+      fieldset {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1rem 1rem 0.75rem;
+        margin: 0 0 1.25rem;
+        background: var(--surface);
+      }
+
+      legend {
+        padding: 0 0.35rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      .bar-options {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+      }
+
+      .bar-options label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        padding: 0.35rem 0;
+      }
+
+      .bar-options input[type="radio"] {
+        width: 1.1rem;
+        height: 1.1rem;
+        accent-color: var(--accent);
+      }
+
+      .bar-options input:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+
+      .plates-hint {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin: -0.25rem 0 0.75rem;
+      }
+
+      .plate-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .plate-row:last-child {
+        border-bottom: none;
+      }
+
+      .plate-label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+      }
+
+      .plate-kg {
+        font-weight: 600;
+      }
+
+      .plate-color {
+        font-size: 0.75rem;
+        color: var(--muted);
+      }
+
+      .qty-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+
+      .qty-wrap button {
+        width: 2.25rem;
+        height: 2.25rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 1.1rem;
+        line-height: 1;
+        cursor: pointer;
+      }
+
+      .qty-wrap button:hover {
+        border-color: var(--accent-dim);
+      }
+
+      .qty-wrap button:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+
+      .qty-wrap input[type="number"] {
+        width: 3rem;
+        padding: 0.4rem 0.25rem;
+        text-align: center;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 1rem;
+        -moz-appearance: textfield;
+      }
+
+      .qty-wrap input[type="number"]::-webkit-outer-spin-button,
+      .qty-wrap input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      .qty-wrap input:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+
+      .total-card {
+        margin-top: 1.25rem;
+        padding: 1.1rem 1rem;
+        border-radius: 10px;
+        border: 1px solid var(--accent-dim);
+        background: linear-gradient(145deg, #1e2a38 0%, var(--surface) 100%);
+      }
+
+      .total-label {
+        font-size: 0.85rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .total-value {
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0.25rem 0 0;
+        color: var(--accent);
+      }
+
+      .total-detail {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin: 0.5rem 0 0;
+      }
+
+      .actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .actions button {
+        flex: 1;
+        padding: 0.65rem 1rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--text);
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .actions button:hover {
+        border-color: var(--muted);
+      }
+
+      .actions button:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Calculadora de carga</h1>
+      <p class="subtitle">Barra olímpica (LPO) — informe as anilhas de <strong>um lado</strong>; o outro é igual.</p>
+
+      <form id="calc-form" autocomplete="off">
+        <fieldset>
+          <legend>Barra</legend>
+          <div class="bar-options" role="radiogroup" aria-label="Tipo de barra">
+            <label>
+              <input type="radio" name="bar" value="20" checked />
+              Masculina — 20 kg
+            </label>
+            <label>
+              <input type="radio" name="bar" value="15" />
+              Feminina — 15 kg
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Anilhas (por lado)</legend>
+          <p class="plates-hint">Quantidade de cada anilha em um único lado da barra.</p>
+          <div id="plates-container" aria-live="polite"></div>
+        </fieldset>
+
+        <div class="total-card">
+          <div class="total-label">Carga total</div>
+          <p class="total-value" id="total-display">0 kg</p>
+          <p class="total-detail" id="total-detail">Barra + 2 × (soma de um lado)</p>
+        </div>
+
+        <div class="actions">
+          <button type="button" id="btn-reset">Zerar anilhas</button>
+        </div>
+      </form>
+    </main>
+
+    <script>
+      (function () {
+        "use strict";
+
+        /** Competition-style plate weights (kg) and Portuguese color hints. */
+        var PLATES = [
+          { kg: 25, color: "Vermelha" },
+          { kg: 20, color: "Azul" },
+          { kg: 15, color: "Amarela" },
+          { kg: 10, color: "Verde" },
+          { kg: 5, color: "Branca" },
+          { kg: 2.5, color: "Vermelha (pequena)" },
+          { kg: 1.25, color: "Azul (pequena)" },
+          { kg: 0.5, color: "Branca (pequena)" },
+        ];
+
+        var container = document.getElementById("plates-container");
+        var totalDisplay = document.getElementById("total-display");
+        var totalDetail = document.getElementById("total-detail");
+        var form = document.getElementById("calc-form");
+        var btnReset = document.getElementById("btn-reset");
+
+        function formatKg(n) {
+          if (n % 1 === 0) {
+            return String(n);
+          }
+          return n.toFixed(2).replace(/\.?0+$/, "");
+        }
+
+        function buildPlateRows() {
+          PLATES.forEach(function (p) {
+            var id = "plate-" + String(p.kg).replace(".", "_");
+            var row = document.createElement("div");
+            row.className = "plate-row";
+
+            var labelWrap = document.createElement("div");
+            labelWrap.className = "plate-label";
+            var label = document.createElement("label");
+            label.setAttribute("for", id);
+            var kgSpan = document.createElement("span");
+            kgSpan.className = "plate-kg";
+            kgSpan.textContent = formatKg(p.kg) + " kg";
+            var colorSpan = document.createElement("span");
+            colorSpan.className = "plate-color";
+            colorSpan.textContent = p.color;
+            label.appendChild(kgSpan);
+            label.appendChild(colorSpan);
+            labelWrap.appendChild(label);
+
+            var qtyWrap = document.createElement("div");
+            qtyWrap.className = "qty-wrap";
+
+            var minus = document.createElement("button");
+            minus.type = "button";
+            minus.setAttribute("aria-label", "Diminuir " + formatKg(p.kg) + " kg");
+            minus.textContent = "−";
+
+            var input = document.createElement("input");
+            input.type = "number";
+            input.id = id;
+            input.name = "plate-" + id;
+            input.min = "0";
+            input.step = "1";
+            input.value = "0";
+            input.setAttribute("inputmode", "numeric");
+            input.setAttribute("aria-label", "Quantidade " + formatKg(p.kg) + " kg");
+
+            var plus = document.createElement("button");
+            plus.type = "button";
+            plus.setAttribute("aria-label", "Aumentar " + formatKg(p.kg) + " kg");
+            plus.textContent = "+";
+
+            minus.addEventListener("click", function () {
+              var v = parseInt(input.value, 10) || 0;
+              input.value = String(Math.max(0, v - 1));
+              input.dispatchEvent(new Event("input", { bubbles: true }));
+            });
+            plus.addEventListener("click", function () {
+              var v = parseInt(input.value, 10) || 0;
+              input.value = String(v + 1);
+              input.dispatchEvent(new Event("input", { bubbles: true }));
+            });
+
+            qtyWrap.appendChild(minus);
+            qtyWrap.appendChild(input);
+            qtyWrap.appendChild(plus);
+
+            row.appendChild(labelWrap);
+            row.appendChild(qtyWrap);
+            container.appendChild(row);
+          });
+        }
+
+        function getBarWeight() {
+          var checked = form.querySelector('input[name="bar"]:checked');
+          return checked ? parseFloat(checked.value) : 20;
+        }
+
+        function getSideTotal() {
+          var inputs = container.querySelectorAll('input[type="number"]');
+          var sum = 0;
+          inputs.forEach(function (inp, i) {
+            var qty = parseInt(inp.value, 10);
+            if (isNaN(qty) || qty < 0) {
+              qty = 0;
+            }
+            sum += PLATES[i].kg * qty;
+          });
+          return sum;
+        }
+
+        function clampInputs() {
+          var inputs = container.querySelectorAll('input[type="number"]');
+          inputs.forEach(function (inp) {
+            var v = parseInt(inp.value, 10);
+            if (isNaN(v) || v < 0) {
+              inp.value = "0";
+            }
+          });
+        }
+
+        function updateTotal() {
+          clampInputs();
+          var bar = getBarWeight();
+          var side = getSideTotal();
+          var total = bar + 2 * side;
+          totalDisplay.textContent = formatKg(total) + " kg";
+          totalDetail.textContent =
+            "Barra " +
+            formatKg(bar) +
+            " kg + 2 × " +
+            formatKg(side) +
+            " kg (um lado) = " +
+            formatKg(total) +
+            " kg";
+        }
+
+        buildPlateRows();
+
+        form.addEventListener("input", updateTotal);
+        form.addEventListener("change", updateTotal);
+
+        btnReset.addEventListener("click", function () {
+          container.querySelectorAll('input[type="number"]').forEach(function (inp) {
+            inp.value = "0";
+          });
+          updateTotal();
+        });
+
+        updateTotal();
+      })();
+    </script>
+  </body>
+</html>
