@@ -93,6 +93,10 @@
         margin: -0.25rem 0 0.75rem;
       }
 
+      .bar-preview-hint {
+        margin: -0.15rem 0 0.65rem;
+      }
+
       .plate-row {
         display: grid;
         grid-template-columns: auto 1fr auto;
@@ -742,6 +746,18 @@
         z-index: 3;
       }
 
+      .stack-plate--preview {
+        cursor: default;
+      }
+
+      .stack-plate--preview:hover {
+        transform: none;
+      }
+
+      .stack-plate--preview::after {
+        display: none;
+      }
+
       .stack-plate:focus-visible {
         outline: 2px solid var(--focus);
         outline-offset: 2px;
@@ -819,6 +835,45 @@
           <p class="plates-hint">Quantidade de cada anilha em um único lado da barra.</p>
           <div id="plates-container" aria-live="polite"></div>
         </fieldset>
+
+        <div class="bar-stage">
+          <p class="bar-stage-label">Pré-visualização da barra (espelhada)</p>
+          <p class="plates-hint bar-preview-hint">
+            Ordem na barra: da luva para fora, do <strong>mais pesado</strong> ao mais leve (igual à lista). Altere as
+            quantidades acima para montar.
+          </p>
+          <div class="bar-visual">
+            <div class="bar-core" aria-hidden="true">
+              <span class="bar-rail bar-rail--sleeve"></span>
+              <span class="bar-rail bar-rail--shaft"></span>
+              <span class="bar-rail bar-rail--sleeve"></span>
+            </div>
+            <div
+              id="bar-drop-calc"
+              class="bar-drop bar-drop--empty"
+              role="img"
+              aria-label="Pré-visualização da carga em um lado da barra, espelhada nos dois lados."
+            >
+              <span class="bar-drop-empty-msg">Nenhuma anilha — ajuste as quantidades acima</span>
+              <div class="bar-drop-inner">
+                <div id="bar-stack-left-calc" class="bar-plates-side bar-plates-side--left"></div>
+                <div class="bar-center-block" aria-hidden="true">
+                  <div class="bar-collar"></div>
+                  <div class="bar-shaft"></div>
+                  <div class="bar-collar"></div>
+                </div>
+                <div id="bar-stack-right-calc" class="bar-plates-side bar-plates-side--right"></div>
+              </div>
+            </div>
+          </div>
+          <div
+            id="bar-stack-summary-calc"
+            class="bar-stack-summary bar-stack-summary--empty"
+            aria-live="polite"
+          >
+            Nenhuma anilha montada (um lado).
+          </div>
+        </div>
 
         <div class="total-card">
           <div class="total-label">Soma final</div>
@@ -1095,6 +1150,7 @@
             kgLbLabel(side.kg, side.lb) +
             " (um lado) = " +
             somaFinalText;
+          renderCalcBarPreview();
         }
 
         buildPlateRows();
@@ -1415,41 +1471,49 @@
           return { height: h + "px", width: w + "px" };
         }
 
-        function updateStackSummary() {
-          var el = document.getElementById("bar-stack-summary");
-          if (!el) {
+        function updateBarSummaryText(summaryEl, stackIds, emptyMsg) {
+          if (!summaryEl) {
             return;
           }
-          if (stackPlateIds.length === 0) {
-            el.textContent = "Nenhuma anilha montada (um lado).";
-            el.classList.add("bar-stack-summary--empty");
+          if (stackIds.length === 0) {
+            summaryEl.textContent = emptyMsg;
+            summaryEl.classList.add("bar-stack-summary--empty");
             return;
           }
-          el.classList.remove("bar-stack-summary--empty");
-          var parts = stackPlateIds.map(function (pid) {
+          summaryEl.classList.remove("bar-stack-summary--empty");
+          var parts = stackIds.map(function (pid) {
             var pl = plateById(pid);
             return pl ? plateLineLabel(pl) : "";
           }).filter(Boolean);
-          el.textContent = "Ordem (luva → fora, um lado): " + parts.join(" → ");
+          summaryEl.textContent = "Ordem (luva → fora, um lado): " + parts.join(" → ");
         }
 
-        function renderBarStack() {
-          var leftEl = document.getElementById("bar-stack-left");
-          var rightEl = document.getElementById("bar-stack-right");
-          if (!leftEl || !rightEl) {
+        function updateStackSummary() {
+          updateBarSummaryText(
+            document.getElementById("bar-stack-summary"),
+            stackPlateIds,
+            "Nenhuma anilha montada (um lado)."
+          );
+        }
+
+        /**
+         * Monta pilha espelhada (mesmo desenho nas duas abas).
+         * @param {boolean} interactive — se true, clique remove (aba Montar barra).
+         */
+        function fillBarMirrored(leftEl, rightEl, barDropEl, stackIds, interactive) {
+          if (!leftEl || !rightEl || !barDropEl) {
             return;
           }
           leftEl.innerHTML = "";
           rightEl.innerHTML = "";
 
-          if (stackPlateIds.length === 0) {
-            barDrop.classList.add("bar-drop--empty");
-            updateStackSummary();
+          if (stackIds.length === 0) {
+            barDropEl.classList.add("bar-drop--empty");
             return;
           }
-          barDrop.classList.remove("bar-drop--empty");
+          barDropEl.classList.remove("bar-drop--empty");
 
-          stackPlateIds.forEach(function (pid, index) {
+          stackIds.forEach(function (pid, index) {
             var p = plateById(pid);
             if (!p) {
               return;
@@ -1464,16 +1528,28 @@
 
             function makeStackPlate() {
               var sp = document.createElement("div");
-              sp.className = "stack-plate";
-              sp.setAttribute("data-plate-id", pid);
-              sp.setAttribute("data-index", String(index));
-              sp.setAttribute("data-title", plateLineLabel(p) + " — clique para remover o par");
-              sp.setAttribute("role", "button");
-              sp.setAttribute("tabindex", "0");
-              sp.setAttribute(
-                "aria-label",
-                "Remover par de " + plateLineLabel(p) + " (ambos os lados)"
-              );
+              if (interactive) {
+                sp.className = "stack-plate";
+                sp.setAttribute("data-plate-id", pid);
+                sp.setAttribute("data-index", String(index));
+                sp.setAttribute("data-title", plateLineLabel(p) + " — clique para remover o par");
+                sp.setAttribute("role", "button");
+                sp.setAttribute("tabindex", "0");
+                sp.setAttribute(
+                  "aria-label",
+                  "Remover par de " + plateLineLabel(p) + " (ambos os lados)"
+                );
+                sp.addEventListener("click", removePair);
+                sp.addEventListener("keydown", function (ev) {
+                  if (ev.key === "Enter" || ev.key === " ") {
+                    ev.preventDefault();
+                    removePair(ev);
+                  }
+                });
+              } else {
+                sp.className = "stack-plate stack-plate--preview";
+                sp.setAttribute("aria-hidden", "true");
+              }
 
               var edge = document.createElement("div");
               edge.className = "plate-edge " + plateEdgeClassFor(p);
@@ -1482,21 +1558,55 @@
               edge.style.height = dims.height;
               edge.style.width = dims.width;
               sp.appendChild(edge);
-
-              sp.addEventListener("click", removePair);
-              sp.addEventListener("keydown", function (ev) {
-                if (ev.key === "Enter" || ev.key === " ") {
-                  ev.preventDefault();
-                  removePair(ev);
-                }
-              });
               return sp;
             }
 
             leftEl.appendChild(makeStackPlate());
             rightEl.appendChild(makeStackPlate());
           });
+        }
 
+        function buildQuantityStackIds() {
+          var inputs = container.querySelectorAll('input[type="number"]');
+          var ids = [];
+          PLATES.forEach(function (plate, i) {
+            var inp = inputs[i];
+            var qty = inp ? parseInt(inp.value, 10) : 0;
+            if (isNaN(qty) || qty < 0) {
+              qty = 0;
+            }
+            var j = 0;
+            for (j = 0; j < qty; j++) {
+              ids.push(plate.id);
+            }
+          });
+          return ids;
+        }
+
+        function renderCalcBarPreview() {
+          var ids = buildQuantityStackIds();
+          fillBarMirrored(
+            document.getElementById("bar-stack-left-calc"),
+            document.getElementById("bar-stack-right-calc"),
+            document.getElementById("bar-drop-calc"),
+            ids,
+            false
+          );
+          updateBarSummaryText(
+            document.getElementById("bar-stack-summary-calc"),
+            ids,
+            "Nenhuma anilha montada (um lado)."
+          );
+        }
+
+        function renderBarStack() {
+          fillBarMirrored(
+            document.getElementById("bar-stack-left"),
+            document.getElementById("bar-stack-right"),
+            barDrop,
+            stackPlateIds,
+            true
+          );
           updateStackSummary();
         }
 
