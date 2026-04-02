@@ -311,6 +311,439 @@
         outline: 2px solid var(--focus);
         outline-offset: 2px;
       }
+
+      /* Abas */
+      .tabs {
+        margin-bottom: 1.25rem;
+      }
+
+      .tablist {
+        display: flex;
+        gap: 0.35rem;
+        padding: 0.2rem;
+        border-radius: 10px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+      }
+
+      .tablist button {
+        flex: 1;
+        padding: 0.55rem 0.75rem;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--muted);
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+
+      .tablist button:hover {
+        color: var(--text);
+      }
+
+      .tablist button[aria-selected="true"] {
+        background: var(--bg);
+        color: var(--accent);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+      }
+
+      .tablist button:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+      }
+
+      .tab-panel[hidden] {
+        display: none !important;
+      }
+
+      /* Montar barra — drag & drop */
+      .dnd-hint {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin: 0 0 1rem;
+        line-height: 1.45;
+      }
+
+      .palette-wrap {
+        margin-bottom: 1.25rem;
+      }
+
+      .palette-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 0 0 0.5rem;
+      }
+
+      .palette {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+        gap: 0.65rem 0.45rem;
+        padding: 0.75rem;
+        border-radius: 10px;
+        border: 1px dashed var(--border);
+        background: rgba(0, 0, 0, 0.2);
+        min-height: 3.5rem;
+        align-items: start;
+      }
+
+      .palette-item {
+        cursor: grab;
+        touch-action: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.2rem 0.4rem;
+        border-radius: 10px;
+        transition: transform 0.12s;
+        background: rgba(0, 0, 0, 0.15);
+        border: 1px solid var(--border);
+      }
+
+      .palette-item:hover {
+        border-color: var(--accent-dim);
+      }
+
+      .palette-item-weight {
+        font-size: 0.62rem;
+        line-height: 1.3;
+        text-align: center;
+        font-weight: 600;
+        color: var(--text);
+        letter-spacing: -0.02em;
+        word-break: break-word;
+      }
+
+      .palette-kg-line {
+        display: block;
+      }
+
+      .palette-item-weight .palette-lb-part {
+        display: block;
+        margin-top: 0.12rem;
+        font-weight: 500;
+        font-size: 0.92em;
+        color: var(--muted);
+      }
+
+      .palette-item:active {
+        cursor: grabbing;
+      }
+
+      .palette-item:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 3px;
+      }
+
+      .palette-item.dragging {
+        opacity: 0.45;
+      }
+
+      .bar-stage {
+        margin-bottom: 1.25rem;
+      }
+
+      .bar-stage-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin: 0 0 0.5rem;
+      }
+
+      .bar-stack-summary {
+        margin: 0.65rem 0 0;
+        padding: 0.55rem 0.65rem;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.18);
+        font-size: 0.78rem;
+        line-height: 1.45;
+        color: var(--text);
+      }
+
+      .bar-stack-summary--empty {
+        color: var(--muted);
+      }
+
+      .bar-visual {
+        position: relative;
+        padding: 1rem 0.4rem 1.25rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: linear-gradient(180deg, #141a22 0%, #0d1118 100%);
+        overflow: hidden;
+      }
+
+      /* Trilho contínuo: mangas mais grossas, eixo central mais fino (como na barra real) */
+      .bar-core {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        gap: 0;
+        height: 56px;
+        margin-top: 0;
+        background: transparent;
+        box-shadow: none;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .bar-rail {
+        align-self: center;
+        border-radius: 3px;
+        background: linear-gradient(
+          180deg,
+          #4a5568 0%,
+          #2d3748 38%,
+          #1a202c 62%,
+          #4a5568 100%
+        );
+      }
+
+      .bar-rail--sleeve {
+        flex: 1 1 0;
+        min-width: 0;
+        height: 13px;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.12),
+          0 2px 8px rgba(0, 0, 0, 0.45);
+      }
+
+      .bar-rail--shaft {
+        flex: 0 0 auto;
+        width: clamp(6.25rem, 34vw, 9.5rem);
+        height: 7px;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          0 1px 4px rgba(0, 0, 0, 0.4);
+      }
+
+      .bar-drop {
+        position: relative;
+        z-index: 2;
+        min-height: 88px;
+        padding: 0.45rem 0.35rem;
+        border-radius: 8px;
+        border: 2px dashed transparent;
+        transition:
+          border-color 0.15s,
+          background 0.15s;
+      }
+
+      .bar-drop-inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        gap: 0.2rem;
+        align-items: center;
+        min-height: 76px;
+      }
+
+      .bar-plates-side {
+        display: flex;
+        align-items: center;
+        gap: 0.06rem;
+        min-width: 0;
+      }
+
+      .bar-plates-side--left {
+        flex-direction: row-reverse;
+        justify-content: flex-start;
+      }
+
+      .bar-plates-side--right {
+        flex-direction: row;
+        justify-content: flex-start;
+      }
+
+      .bar-center-block {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        flex-shrink: 0;
+        gap: 0;
+      }
+
+      /* Luvas / manga: diâmetro maior (lado de fora das placas) */
+      .bar-collar {
+        width: 17px;
+        height: 56px;
+        border-radius: 4px;
+        background: linear-gradient(90deg, #718096, #4a5568 50%, #718096);
+        box-shadow:
+          inset 0 1px 2px rgba(255, 255, 255, 0.22),
+          0 2px 8px rgba(0, 0, 0, 0.48);
+        pointer-events: none;
+      }
+
+      /* Eixo central: mais longo, mas mais fino que a manga */
+      .bar-shaft {
+        width: clamp(6.25rem, 34vw, 9.5rem);
+        min-width: 6.25rem;
+        height: 11px;
+        border-radius: 3px;
+        background:
+          repeating-linear-gradient(
+            90deg,
+            transparent 0,
+            transparent 2px,
+            rgba(0, 0, 0, 0.14) 2px,
+            rgba(0, 0, 0, 0.14) 3px
+          ),
+          linear-gradient(180deg, #5a6578 0%, #3d4756 45%, #2a323c 100%);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          inset 0 -2px 5px rgba(0, 0, 0, 0.2),
+          0 1px 4px rgba(0, 0, 0, 0.38);
+        pointer-events: none;
+      }
+
+      .bar-drop.bar-drop--over {
+        border-color: var(--accent);
+        background: rgba(61, 156, 253, 0.08);
+      }
+
+      .bar-drop-empty-msg {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+        font-size: 0.78rem;
+        color: var(--muted);
+        text-align: center;
+        max-width: 14rem;
+        line-height: 1.35;
+        pointer-events: none;
+        padding: 0 0.5rem;
+      }
+
+      .bar-drop:not(.bar-drop--empty) .bar-drop-empty-msg {
+        display: none;
+      }
+
+      /* Vista lateral (perfil) — compacta, estilo mancuerna / barra de lado */
+      .plate-edge {
+        border-radius: 5px;
+        flex-shrink: 0;
+        position: relative;
+        box-shadow:
+          inset 3px 0 5px rgba(255, 255, 255, 0.14),
+          inset -4px 0 8px rgba(0, 0, 0, 0.38),
+          0 1px 4px rgba(0, 0, 0, 0.45);
+        border: 1px solid rgba(0, 0, 0, 0.5);
+      }
+
+      .plate-edge--55 {
+        background: linear-gradient(
+          90deg,
+          #5c1010 0%,
+          #b71c1c 35%,
+          #ff8a80 50%,
+          #b71c1c 65%,
+          #5c1010 100%
+        );
+      }
+
+      .plate-edge--45 {
+        background: linear-gradient(
+          90deg,
+          #0a3a7a 0%,
+          #1565c0 38%,
+          #90caf9 50%,
+          #1565c0 62%,
+          #0a3a7a 100%
+        );
+      }
+
+      .plate-edge--35 {
+        background: linear-gradient(
+          90deg,
+          #8c5a00 0%,
+          #f9a825 38%,
+          #ffecb3 50%,
+          #f9a825 62%,
+          #8c5a00 100%
+        );
+      }
+
+      .plate-edge--25 {
+        background: linear-gradient(
+          90deg,
+          #145214 0%,
+          #2e7d32 38%,
+          #a5d6a7 50%,
+          #2e7d32 62%,
+          #145214 100%
+        );
+      }
+
+      .plate-edge--black {
+        background: linear-gradient(
+          90deg,
+          #0a0b0d 0%,
+          #2d323a 42%,
+          #6a7078 50%,
+          #2d323a 58%,
+          #0a0b0d 100%
+        );
+        border-color: rgba(0, 0, 0, 0.65);
+      }
+
+      .stack-plate {
+        flex-shrink: 0;
+        cursor: pointer;
+        position: relative;
+        transition: transform 0.12s;
+        display: flex;
+        align-items: center;
+      }
+
+      .stack-plate:hover {
+        transform: scale(1.05);
+        z-index: 3;
+      }
+
+      .stack-plate:focus-visible {
+        outline: 2px solid var(--focus);
+        outline-offset: 2px;
+        border-radius: 6px;
+      }
+
+      .stack-plate::after {
+        content: attr(data-title);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-bottom: 4px;
+        padding: 0.2rem 0.4rem;
+        font-size: 0.65rem;
+        white-space: nowrap;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--text);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.12s;
+        z-index: 10;
+      }
+
+      .stack-plate:hover::after,
+      .stack-plate:focus-visible::after {
+        opacity: 1;
+      }
     </style>
   </head>
   <body>
@@ -336,6 +769,23 @@
           </div>
         </fieldset>
 
+      <div class="tabs">
+        <div class="tablist" role="tablist" aria-label="Modo da calculadora">
+          <button type="button" role="tab" id="tab-calc" aria-selected="true" aria-controls="panel-calc">
+            Por quantidade
+          </button>
+          <button type="button" role="tab" id="tab-dnd" aria-selected="false" aria-controls="panel-dnd">
+            Montar barra
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="panel-calc"
+        class="tab-panel"
+        role="tabpanel"
+        aria-labelledby="tab-calc"
+      >
         <fieldset>
           <legend>Anilhas (por lado)</legend>
           <p class="plates-hint">Quantidade de cada anilha em um único lado da barra.</p>
@@ -351,6 +801,75 @@
         <div class="actions">
           <button type="button" id="btn-reset">Zerar anilhas</button>
         </div>
+      </div>
+
+      <div
+        id="panel-dnd"
+        class="tab-panel"
+        role="tabpanel"
+        aria-labelledby="tab-dnd"
+        hidden
+      >
+        <p class="dnd-hint">
+          A barra é mostrada <strong>inteira</strong>: cada arrasto coloca o <strong>mesmo par</strong> nos dois lados (como na vida real).
+          As anilhas na barra aparecem de <strong>perfil</strong> (de lado), para caber mais cargas na tela. Abaixo da barra, a
+          <strong>lista</strong> descreve a ordem (luva → fora). Clique numa anilha para remover o par. O peso da
+          <strong>barra</strong> (acima) vale para as duas abas.
+        </p>
+
+        <div class="palette-wrap">
+          <p class="palette-label">Anilhas (do mais pesado ao mais leve) — arraste para a barra</p>
+          <div id="palette" class="palette" aria-label="Anilhas em ordem do mais pesado ao mais leve; arraste para a barra"></div>
+        </div>
+
+        <div class="bar-stage">
+          <p class="bar-stage-label">Barra completa (espelhada)</p>
+          <div class="bar-visual">
+            <div class="bar-core" aria-hidden="true">
+              <span class="bar-rail bar-rail--sleeve"></span>
+              <span class="bar-rail bar-rail--shaft"></span>
+              <span class="bar-rail bar-rail--sleeve"></span>
+            </div>
+            <div
+              id="bar-drop"
+              class="bar-drop bar-drop--empty"
+              tabindex="0"
+              role="group"
+              aria-label="Barra completa. Cada anilha solta vale para os dois lados; clique para remover o par."
+            >
+              <span class="bar-drop-empty-msg"
+                >Solte anilhas na barra — cada uma carrega os <strong>dois lados</strong> ao mesmo tempo</span
+              >
+              <div class="bar-drop-inner">
+                <div id="bar-stack-left" class="bar-plates-side bar-plates-side--left"></div>
+                <div class="bar-center-block" aria-hidden="true">
+                  <div class="bar-collar"></div>
+                  <div class="bar-shaft"></div>
+                  <div class="bar-collar"></div>
+                </div>
+                <div id="bar-stack-right" class="bar-plates-side bar-plates-side--right"></div>
+              </div>
+            </div>
+          </div>
+          <div
+            id="bar-stack-summary"
+            class="bar-stack-summary bar-stack-summary--empty"
+            aria-live="polite"
+          >
+            Nenhuma anilha montada (um lado).
+          </div>
+        </div>
+
+        <div class="total-card">
+          <div class="total-label">Soma final</div>
+          <p class="total-value" id="total-display-dnd">20 kg (44.1 lb)</p>
+          <p class="total-detail" id="total-detail-dnd">Barra + 2 × (soma de um lado)</p>
+        </div>
+
+        <div class="actions">
+          <button type="button" id="btn-reset-dnd">Limpar barra</button>
+        </div>
+      </div>
       </form>
     </main>
 
@@ -552,7 +1071,10 @@
         buildPlateRows();
 
         form.addEventListener("input", updateTotal);
-        form.addEventListener("change", updateTotal);
+        form.addEventListener("change", function () {
+          updateTotal();
+          updateDragTotal();
+        });
 
         btnReset.addEventListener("click", function () {
           container.querySelectorAll('input[type="number"]').forEach(function (inp) {
@@ -560,6 +1082,293 @@
           });
           updateTotal();
         });
+
+        /* ——— Abas ——— */
+        var tabCalc = document.getElementById("tab-calc");
+        var tabDnd = document.getElementById("tab-dnd");
+        var panelCalc = document.getElementById("panel-calc");
+        var panelDnd = document.getElementById("panel-dnd");
+
+        function setTab(which) {
+          var isCalc = which === "calc";
+          tabCalc.setAttribute("aria-selected", isCalc ? "true" : "false");
+          tabDnd.setAttribute("aria-selected", isCalc ? "false" : "true");
+          panelCalc.hidden = !isCalc;
+          panelDnd.hidden = isCalc;
+          if (!isCalc) {
+            updateDragTotal();
+          }
+        }
+
+        tabCalc.addEventListener("click", function () {
+          setTab("calc");
+        });
+        tabDnd.addEventListener("click", function () {
+          setTab("dnd");
+        });
+
+        /* ——— Montar barra (drag & drop) ——— */
+        var paletteEl = document.getElementById("palette");
+        var barDrop = document.getElementById("bar-drop");
+        var totalDisplayDnd = document.getElementById("total-display-dnd");
+        var totalDetailDnd = document.getElementById("total-detail-dnd");
+        var btnResetDnd = document.getElementById("btn-reset-dnd");
+
+        /** @type {string[]} ids de PLATES, ordem = luva → fora */
+        var stackPlateIds = [];
+
+        function plateById(id) {
+          for (var i = 0; i < PLATES.length; i++) {
+            if (PLATES[i].id === id) {
+              return PLATES[i];
+            }
+          }
+          return null;
+        }
+
+        function paletteWeightEl(p) {
+          var weight = document.createElement("span");
+          weight.className = "palette-item-weight";
+          var kgSpan = document.createElement("span");
+          kgSpan.className = "palette-kg-line";
+          kgSpan.textContent = formatKgExact(p.kg) + " kg";
+          var lbSpan = document.createElement("span");
+          lbSpan.className = "palette-lb-part";
+          lbSpan.textContent =
+            p.lb != null
+              ? "(" + String(p.lb) + " lb)"
+              : "(" + formatLbFromKg(p.kg) + " lb)";
+          weight.appendChild(kgSpan);
+          weight.appendChild(lbSpan);
+          return weight;
+        }
+
+        function buildPaletteDnD() {
+          paletteEl.innerHTML = "";
+          var ordered = PLATES.slice().sort(function (a, b) {
+            return b.kg - a.kg;
+          });
+          ordered.forEach(function (p) {
+            var wrap = document.createElement("div");
+            wrap.className = "palette-item";
+            wrap.setAttribute("draggable", "true");
+            wrap.setAttribute("data-plate-id", p.id);
+            wrap.setAttribute("role", "button");
+            wrap.setAttribute("tabindex", "0");
+            wrap.setAttribute("aria-label", "Arrastar " + plateLineLabel(p));
+
+            var thumb = document.createElement("div");
+            thumb.className = "plate-thumb " + p.thumbCss;
+            thumb.setAttribute("aria-hidden", "true");
+            thumb.title = plateThumbTitle(p);
+
+            wrap.appendChild(thumb);
+            wrap.appendChild(paletteWeightEl(p));
+
+            wrap.addEventListener("dragstart", function (e) {
+              e.dataTransfer.setData("application/x-plate-id", p.id);
+              e.dataTransfer.setData("text/plain", p.id);
+              e.dataTransfer.effectAllowed = "copy";
+              wrap.classList.add("dragging");
+            });
+            wrap.addEventListener("dragend", function () {
+              wrap.classList.remove("dragging");
+            });
+            wrap.addEventListener("keydown", function (e) {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                stackPlateIds.push(p.id);
+                renderBarStack();
+                updateDragTotal();
+              }
+            });
+
+            paletteEl.appendChild(wrap);
+          });
+        }
+
+        function plateEdgeClassFor(p) {
+          var c = p.thumbCss;
+          if (c.indexOf("plate-thumb--55") !== -1) {
+            return "plate-edge--55";
+          }
+          if (c.indexOf("plate-thumb--45") !== -1) {
+            return "plate-edge--45";
+          }
+          if (c.indexOf("plate-thumb--35") !== -1) {
+            return "plate-edge--35";
+          }
+          if (c.indexOf("plate-thumb--25") !== -1) {
+            return "plate-edge--25";
+          }
+          return "plate-edge--black";
+        }
+
+        function plateEdgeDims(p) {
+          var kg = p.kg;
+          var t = Math.min(1, Math.max(0, kg / 25));
+          var h = Math.round(16 + Math.sqrt(t) * 36);
+          var w = Math.round(3.5 + t * 5);
+          if (kg < 2.6) {
+            h = Math.min(h, Math.round(14 + kg * 3.2));
+            w = Math.max(3, w - 1);
+          }
+          if (p.thumbCss.indexOf("plate-thumb--small") !== -1) {
+            w = Math.max(3, w - 1);
+          }
+          return { height: h + "px", width: w + "px" };
+        }
+
+        function updateStackSummary() {
+          var el = document.getElementById("bar-stack-summary");
+          if (!el) {
+            return;
+          }
+          if (stackPlateIds.length === 0) {
+            el.textContent = "Nenhuma anilha montada (um lado).";
+            el.classList.add("bar-stack-summary--empty");
+            return;
+          }
+          el.classList.remove("bar-stack-summary--empty");
+          var parts = stackPlateIds.map(function (pid) {
+            var pl = plateById(pid);
+            return pl ? plateLineLabel(pl) : "";
+          }).filter(Boolean);
+          el.textContent = "Ordem (luva → fora, um lado): " + parts.join(" → ");
+        }
+
+        function renderBarStack() {
+          var leftEl = document.getElementById("bar-stack-left");
+          var rightEl = document.getElementById("bar-stack-right");
+          if (!leftEl || !rightEl) {
+            return;
+          }
+          leftEl.innerHTML = "";
+          rightEl.innerHTML = "";
+
+          if (stackPlateIds.length === 0) {
+            barDrop.classList.add("bar-drop--empty");
+            updateStackSummary();
+            return;
+          }
+          barDrop.classList.remove("bar-drop--empty");
+
+          stackPlateIds.forEach(function (pid, index) {
+            var p = plateById(pid);
+            if (!p) {
+              return;
+            }
+
+            function removePair(ev) {
+              ev.stopPropagation();
+              stackPlateIds.splice(index, 1);
+              renderBarStack();
+              updateDragTotal();
+            }
+
+            function makeStackPlate() {
+              var sp = document.createElement("div");
+              sp.className = "stack-plate";
+              sp.setAttribute("data-plate-id", pid);
+              sp.setAttribute("data-index", String(index));
+              sp.setAttribute("data-title", plateLineLabel(p) + " — clique para remover o par");
+              sp.setAttribute("role", "button");
+              sp.setAttribute("tabindex", "0");
+              sp.setAttribute(
+                "aria-label",
+                "Remover par de " + plateLineLabel(p) + " (ambos os lados)"
+              );
+
+              var edge = document.createElement("div");
+              edge.className = "plate-edge " + plateEdgeClassFor(p);
+              edge.setAttribute("aria-hidden", "true");
+              var dims = plateEdgeDims(p);
+              edge.style.height = dims.height;
+              edge.style.width = dims.width;
+              sp.appendChild(edge);
+
+              sp.addEventListener("click", removePair);
+              sp.addEventListener("keydown", function (ev) {
+                if (ev.key === "Enter" || ev.key === " ") {
+                  ev.preventDefault();
+                  removePair(ev);
+                }
+              });
+              return sp;
+            }
+
+            leftEl.appendChild(makeStackPlate());
+            rightEl.appendChild(makeStackPlate());
+          });
+
+          updateStackSummary();
+        }
+
+        function getSideTotalsFromStack() {
+          var sumKg = 0;
+          var sumLb = 0;
+          stackPlateIds.forEach(function (pid) {
+            var plate = plateById(pid);
+            if (!plate) {
+              return;
+            }
+            sumKg += plate.kg;
+            sumLb += plate.lb != null ? plate.lb : plate.kg * KG_TO_LB;
+          });
+          return { kg: sumKg, lb: sumLb };
+        }
+
+        function updateDragTotal() {
+          var barKg = getBarWeightKg();
+          var barLb = getBarWeightLb();
+          var side = getSideTotalsFromStack();
+          var totalKg = barKg + 2 * side.kg;
+          var totalLb = barLb + 2 * side.lb;
+          var somaFinalText =
+            formatKgExact(totalKg) + " kg (" + formatLbTotal(totalLb) + " lb)";
+          totalDisplayDnd.textContent = somaFinalText;
+          totalDetailDnd.textContent =
+            "Barra " +
+            kgLbLabel(barKg, barLb) +
+            " + 2 × " +
+            kgLbLabel(side.kg, side.lb) +
+            " (um lado) = " +
+            somaFinalText;
+        }
+
+        barDrop.addEventListener("dragover", function (e) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "copy";
+          barDrop.classList.add("bar-drop--over");
+        });
+        barDrop.addEventListener("dragleave", function (e) {
+          if (!barDrop.contains(e.relatedTarget)) {
+            barDrop.classList.remove("bar-drop--over");
+          }
+        });
+        barDrop.addEventListener("drop", function (e) {
+          e.preventDefault();
+          barDrop.classList.remove("bar-drop--over");
+          var pid =
+            e.dataTransfer.getData("application/x-plate-id") ||
+            e.dataTransfer.getData("text/plain");
+          if (!pid || !plateById(pid)) {
+            return;
+          }
+          stackPlateIds.push(pid);
+          renderBarStack();
+          updateDragTotal();
+        });
+
+        btnResetDnd.addEventListener("click", function () {
+          stackPlateIds = [];
+          renderBarStack();
+          updateDragTotal();
+        });
+
+        buildPaletteDnD();
+        renderBarStack();
+        updateDragTotal();
 
         updateTotal();
       })();
