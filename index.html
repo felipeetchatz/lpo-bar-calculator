@@ -395,6 +395,9 @@
       .palette-item {
         cursor: grab;
         touch-action: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -443,6 +446,27 @@
 
       .palette-item.dragging {
         opacity: 0.45;
+      }
+
+      /* Fantasma do arrasto no toque (fora da paleta) */
+      .touch-drag-ghost {
+        position: fixed;
+        left: 0;
+        top: 0;
+        z-index: 10050;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        padding: 0.35rem;
+        border-radius: 10px;
+        background: rgba(15, 20, 25, 0.94);
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+        opacity: 0.96;
+        max-width: 5.5rem;
+      }
+
+      .touch-drag-ghost .palette-item-weight {
+        font-size: 0.58rem;
       }
 
       .bar-stage {
@@ -814,7 +838,8 @@
           A barra é mostrada <strong>inteira</strong>: cada arrasto coloca o <strong>mesmo par</strong> nos dois lados (como na vida real).
           As anilhas na barra aparecem de <strong>perfil</strong> (de lado), para caber mais cargas na tela. Abaixo da barra, a
           <strong>lista</strong> descreve a ordem (luva → fora). Clique numa anilha para remover o par. O peso da
-          <strong>barra</strong> (acima) vale para as duas abas.
+          <strong>barra</strong> (acima) vale para as duas abas. No <strong>celular</strong>, arraste com o dedo a partir da
+          miniatura — a cópia que segue o toque solta na área da barra.
         </p>
 
         <div class="palette-wrap">
@@ -1143,6 +1168,172 @@
           return weight;
         }
 
+        function applyPlateDrop(pid) {
+          if (!pid || !plateById(pid)) {
+            return;
+          }
+          stackPlateIds.push(pid);
+          renderBarStack();
+          updateDragTotal();
+        }
+
+        /**
+         * HTML5 drag não funciona de forma confiável no iOS / Safari móvel.
+         * Toque: pointer events (ou fallback touch) + fantasma que segue o dedo.
+         */
+        function installTouchDrag(wrap, plateId) {
+          var ghost = null;
+          var dragging = false;
+
+          function setBarOver(on) {
+            if (on) {
+              barDrop.classList.add("bar-drop--over");
+            } else {
+              barDrop.classList.remove("bar-drop--over");
+            }
+          }
+
+          function cleanup() {
+            dragging = false;
+            wrap.classList.remove("dragging");
+            setBarOver(false);
+            if (ghost && ghost.parentNode) {
+              ghost.parentNode.removeChild(ghost);
+            }
+            ghost = null;
+          }
+
+          function positionGhost(clientX, clientY) {
+            if (!ghost) {
+              return;
+            }
+            ghost.style.left = clientX + "px";
+            ghost.style.top = clientY + "px";
+          }
+
+          function startDrag(clientX, clientY) {
+            dragging = true;
+            wrap.classList.add("dragging");
+            ghost = document.createElement("div");
+            ghost.className = "touch-drag-ghost";
+            ghost.setAttribute("aria-hidden", "true");
+            ghost.innerHTML = wrap.innerHTML;
+            document.body.appendChild(ghost);
+            positionGhost(clientX, clientY);
+          }
+
+          function endDrag(clientX, clientY) {
+            if (!dragging) {
+              return;
+            }
+            var r = barDrop.getBoundingClientRect();
+            var over =
+              clientX >= r.left &&
+              clientX <= r.right &&
+              clientY >= r.top &&
+              clientY <= r.bottom;
+            cleanup();
+            if (over) {
+              applyPlateDrop(plateId);
+            }
+          }
+
+          if (window.PointerEvent) {
+            wrap.addEventListener(
+              "pointerdown",
+              function (e) {
+                if (e.pointerType === "mouse") {
+                  return;
+                }
+                e.preventDefault();
+                var capId = e.pointerId;
+                startDrag(e.clientX, e.clientY);
+                try {
+                  wrap.setPointerCapture(capId);
+                } catch (err) {}
+
+                function onMove(ev) {
+                  if (ev.pointerId !== capId) {
+                    return;
+                  }
+                  ev.preventDefault();
+                  positionGhost(ev.clientX, ev.clientY);
+                  var br = barDrop.getBoundingClientRect();
+                  var over =
+                    ev.clientX >= br.left &&
+                    ev.clientX <= br.right &&
+                    ev.clientY >= br.top &&
+                    ev.clientY <= br.bottom;
+                  setBarOver(over);
+                }
+
+                function onUp(ev) {
+                  if (ev.pointerId !== capId) {
+                    return;
+                  }
+                  document.removeEventListener("pointermove", onMove);
+                  document.removeEventListener("pointerup", onUp);
+                  document.removeEventListener("pointercancel", onUp);
+                  try {
+                    wrap.releasePointerCapture(capId);
+                  } catch (err2) {}
+                  endDrag(ev.clientX, ev.clientY);
+                }
+
+                document.addEventListener("pointermove", onMove, { passive: false });
+                document.addEventListener("pointerup", onUp);
+                document.addEventListener("pointercancel", onUp);
+              },
+              { passive: false }
+            );
+          } else {
+            wrap.addEventListener(
+              "touchstart",
+              function (e) {
+                if (e.touches.length !== 1) {
+                  return;
+                }
+                e.preventDefault();
+                var t = e.touches[0];
+                startDrag(t.clientX, t.clientY);
+
+                function move(ev) {
+                  if (!ev.touches[0]) {
+                    return;
+                  }
+                  ev.preventDefault();
+                  var tt = ev.touches[0];
+                  positionGhost(tt.clientX, tt.clientY);
+                  var br = barDrop.getBoundingClientRect();
+                  var over =
+                    tt.clientX >= br.left &&
+                    tt.clientX <= br.right &&
+                    tt.clientY >= br.top &&
+                    tt.clientY <= br.bottom;
+                  setBarOver(over);
+                }
+
+                function end(ev) {
+                  document.removeEventListener("touchmove", move);
+                  document.removeEventListener("touchend", end);
+                  document.removeEventListener("touchcancel", end);
+                  var tt = ev.changedTouches[0];
+                  if (tt) {
+                    endDrag(tt.clientX, tt.clientY);
+                  } else {
+                    cleanup();
+                  }
+                }
+
+                document.addEventListener("touchmove", move, { passive: false });
+                document.addEventListener("touchend", end);
+                document.addEventListener("touchcancel", end);
+              },
+              { passive: false }
+            );
+          }
+        }
+
         function buildPaletteDnD() {
           paletteEl.innerHTML = "";
           var ordered = PLATES.slice().sort(function (a, b) {
@@ -1177,11 +1368,11 @@
             wrap.addEventListener("keydown", function (e) {
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
-                stackPlateIds.push(p.id);
-                renderBarStack();
-                updateDragTotal();
+                applyPlateDrop(p.id);
               }
             });
+
+            installTouchDrag(wrap, p.id);
 
             paletteEl.appendChild(wrap);
           });
@@ -1352,12 +1543,7 @@
           var pid =
             e.dataTransfer.getData("application/x-plate-id") ||
             e.dataTransfer.getData("text/plain");
-          if (!pid || !plateById(pid)) {
-            return;
-          }
-          stackPlateIds.push(pid);
-          renderBarStack();
-          updateDragTotal();
+          applyPlateDrop(pid);
         });
 
         btnResetDnd.addEventListener("click", function () {
